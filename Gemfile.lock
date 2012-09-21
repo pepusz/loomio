@@ -18,6 +18,12 @@ GIT
   specs:
     redcarpet (2.1.1)
 
+PATH
+  remote: vendor/gems/bush_telegraph
+  specs:
+    bush_telegraph (0.0.1)
+      rails (~> 3.2.6)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -368,6 +374,7 @@ DEPENDENCIES
   awesome_print
   bootstrap-sass (~> 2.0.3)
   browser
+  bush_telegraph!
   cancan
   cane!
   capistrano
