@@ -88,5 +88,26 @@ class Event < ActiveRecord::Base
     end
     event
   end
+
+  def self.publish(*params)
+    event = create_for_params!(*params)
+    event.notify_users
+    event
+  end  
+
+  def title
+    eventable.title
+  end
+  
+  def group_name
+    eventable.group_full_name
+  end  
+  
+  def notify_users
+    # TODO: potentially innefficient for large users
+    notifiable_users.find_each(:batch_size => 500) do |user|
+      notifications.create! :user => user
+    end
+  end
+  
 end
-``

@@ -1,5 +1,4 @@
 class User < ActiveRecord::Base
-
   require 'net/http'
   require 'digest/md5'
 
@@ -96,6 +95,10 @@ class User < ActiveRecord::Base
 
   after_create :ensure_name_entry
   before_save :set_avatar_initials
+  
+  scope :not_including, lambda {|user| 
+    user ? {:conditions => ["users.id != ?", user.id]} : {}
+  }
 
   #scope :unviewed_notifications, notifications.where('viewed_at IS NULL')
 

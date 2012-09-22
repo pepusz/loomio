@@ -1,24 +1,17 @@
 class Events::NewDiscussion < Event
-  def self.publish(discussion)
-    event = Events::NewDiscussion.create!(:kind => "new_discussion", :eventable => discussion, :actor => discussion.author)
-    # TODO: potentially innefficient for large users
-    discussion.group_users.each do |user|
-      unless user == discussion.author
-        event.notifications.create! :user => user
-      end
-    end
-    event
+  def self.create_for_params!(discussion)
+    create!(:kind => "new_discussion", :eventable => discussion, :actor => discussion.author)
+  end
+  
+  def notifiable_users
+    discussion.group_users.not_including(discussion.author)
+  end
+  
+  def discussion
+    eventable
   end
   
   def action_text
     "started a new discussion"
-  end
-  
-  def title
-    eventable.title
-  end
-  
-  def group_name
-    eventable.group_full_name
-  end
+  end  
 end

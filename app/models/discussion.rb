@@ -94,19 +94,26 @@ class Discussion < ActiveRecord::Base
     end
   end
 
+  # users who:
+  # commented OR authored this discussion OR authored a motion belonging to this discussion
+
   def participants
-    other_participants = []
-    # Include discussion author
-    unless users_with_comments.find_by_id(author.id)
-      other_participants << author
-    end
-    # Include motion authors
-    motions.each do |motion|
-      unless users_with_comments.find_by_id(motion.author.id)
-        other_participants << motion.author
-      end
-    end
-    users_with_comments.all + other_participants.uniq
+    query = <<SQL
+      users.id IN (
+        SELECT user_id 
+        FROM comments 
+        WHERE comments.commentable_id = :discussion_id AND commentable_type = '#{self.class.name}'
+      ) 
+      OR 
+      users.id = :author_id 
+      OR 
+      users.id IN (
+        SELECT author_id 
+        FROM motions 
+        WHERE motions.discussion_id = :discussion_id
+      )
+SQL
+    User.where([query, {:discussion_id => id, :author_id => author_id}])
   end
 
   def latest_comment_time
