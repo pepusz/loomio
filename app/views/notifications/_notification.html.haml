@@ -1,17 +1,12 @@
 - begin
   - if notification.event_kind == "new_discussion"
-    - begin
-      - event = notification.event.decorate
-    - rescue Exception => e
-      - puts e.message
-    / - href = event.eventable_path
-
-    - discussion = notification.discussion
-    - user = discussion.author
+    - event = notification.event.decorate
+    - href = event.eventable_path
+    - user = event.actor
+    / - user = notification.discussion.author
     - action_text = "started a new discussion"
-    - title_text = discussion.title
-    - group_name = discussion.group_full_name
-    - href = discussion_path(discussion)
+    - title_text = notification.discussion.title
+    - group_name = notification.discussion.group_full_name
 
   - elsif notification.event_kind == "new_comment"
     - comment = notification.comment

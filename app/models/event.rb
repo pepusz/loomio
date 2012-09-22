@@ -9,7 +9,7 @@ class Event < ActiveRecord::Base
   validates_inclusion_of :kind, :in => KINDS
   validates_presence_of :eventable
 
-  attr_accessible :kind, :eventable, :user
+  attr_accessible :kind, :eventable, :actor
 
   def self.new_discussion!(*params)
     Events::NewDiscussion.publish(*params)
