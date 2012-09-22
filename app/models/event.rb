@@ -4,21 +4,15 @@ class Event < ActiveRecord::Base
 
   has_many :notifications, :dependent => :destroy
   belongs_to :eventable, :polymorphic => true
-  belongs_to :user
+  belongs_to :actor, :polymorphic => true
 
   validates_inclusion_of :kind, :in => KINDS
   validates_presence_of :eventable
 
   attr_accessible :kind, :eventable, :user
 
-  def self.new_discussion!(discussion)
-    event = create!(:kind => "new_discussion", :eventable => discussion)
-    discussion.group_users.each do |user|
-      unless user == discussion.author
-        event.notifications.create! :user => user
-      end
-    end
-    event
+  def self.new_discussion!(*params)
+    Events::NewDiscussion.publish(*params)
   end
 
   def self.new_comment!(comment)
@@ -42,7 +36,7 @@ class Event < ActiveRecord::Base
   end
 
   def self.motion_closed!(motion, closer)
-    event = create!(:kind => "motion_closed", :eventable => motion, :user => closer)
+    event = create!(:kind => "motion_closed", :eventable => motion, :actor => closer)
     motion.group_users.each do |user|
       event.notifications.create! :user => user
     end
@@ -101,3 +95,4 @@ class Event < ActiveRecord::Base
     event
   end
 end
+``

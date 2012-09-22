@@ -1,5 +1,9 @@
 - begin
   - if notification.event_kind == "new_discussion"
+    / - raise notification.event.inspect
+    / - event = notification.event.decorate
+    / - href = event.eventable_path
+
     - discussion = notification.discussion
     - user = discussion.author
     - action_text = "started a new discussion"
