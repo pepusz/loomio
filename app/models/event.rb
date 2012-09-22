@@ -27,6 +27,10 @@ class Event < ActiveRecord::Base
     Events::MotionClosed.publish(*params)
   end
 
+  def self.motion_blocked!(*params)
+    Events::MotionBlocked.publish(*params)
+  end
+
   def self.new_vote!(vote)
     event = create!(:kind => "new_vote", :eventable => vote)
     begin
@@ -40,16 +44,6 @@ class Event < ActiveRecord::Base
       # Catches error if we are trying to create duplicate notifications for
       # the same user (i.e. if motion author and discussion author are same person)
       raise unless error.message =~ /User has already been taken/
-    end
-    event
-  end
-
-  def self.motion_blocked!(vote)
-    event = create!(:kind => "motion_blocked", :eventable => vote)
-    vote.group_users.each do |user|
-      unless user == vote.user
-        event.notifications.create! :user => user
-      end
     end
     event
   end

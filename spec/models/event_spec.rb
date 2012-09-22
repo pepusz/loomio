@@ -11,8 +11,14 @@ describe Event do
   it { should allow_value("comment_liked").for(:kind) }
   it { should_not allow_value("blah").for(:kind) }
 
-  let(:discussion) { create(:discussion) }
-  let(:group) { discussion.group }
+  let(:discussion)  { create(:discussion) }
+  let(:group)       { discussion.group }
+  let(:empty_scope) do 
+    double("scope").tap do |s| 
+      s.stub(:not_including).and_return(s)
+      s.stub(:find_each).and_return(s)
+    end
+  end
 
   describe "new_discussion!" do
     subject { Event.new_discussion!(discussion) }
@@ -153,7 +159,7 @@ describe Event do
   end
 
   describe "motion_blocked!" do
-    let(:vote) { mock_model(Vote, :group_users => []) }
+    let(:vote) { mock_model(Vote, :group_users => empty_scope, :user => nil) }
     subject { Event.motion_blocked!(vote) }
 
     its(:kind) { should eq("motion_blocked") }

@@ -7,33 +7,33 @@
     - title_text = event.title
     - group_name = event.group_name
 
+  - if notification.event_kind == "motion_blocked"
+    / - vote = notification.vote
+    / - user = vote.user
+    / - action_text = "blocked the proposal"
+    / - title_text = vote.motion_name
+    / - group_name = vote.group_full_name
+    - href = discussion_path(vote.discussion, :proposal => vote.motion.id)
+
   - elsif notification.event_kind == "motion_closed"
-    - motion = notification.motion
+    - event = notification.event
+    - group_name = event.group_name
+    - title_text = event.title
+    
+    - motion = event.motion
     - if current_user == motion.author
       - action_text = "Your proposal"
-      - title_text = motion.name
       - action_text_after = "has closed. Please specify an outcome."
-      - group_name = motion.group_full_name
       - href = discussion_url(motion.discussion, proposal: motion)
     - else
       - user = notification.event.user
       - action_text = "closed the proposal"
-      - title_text = motion.name
-      - group_name = motion.group_full_name
       - href = discussion_path(motion.discussion, proposal: motion)
 
   - elsif notification.event_kind == "new_vote"
     - vote = notification.vote
     - user = vote.user
     - action_text = "#{Vote::POSITION_VERBS[vote.position]} on the proposal"
-    - title_text = vote.motion_name
-    - group_name = vote.group_full_name
-    - href = discussion_path(vote.discussion, :proposal => vote.motion.id)
-
-  - elsif notification.event_kind == "motion_blocked"
-    - vote = notification.vote
-    - user = vote.user
-    - action_text = "blocked the proposal"
     - title_text = vote.motion_name
     - group_name = vote.group_full_name
     - href = discussion_path(vote.discussion, :proposal => vote.motion.id)
