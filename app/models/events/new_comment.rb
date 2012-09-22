@@ -7,6 +7,10 @@ class Events::NewComment < Event
     comment.discussion_participants.not_including(comment.user)
   end
   
+  def discussion
+    comment.discussion
+  end
+  
   def comment
     eventable
   end

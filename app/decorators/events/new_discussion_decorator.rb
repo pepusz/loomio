@@ -3,7 +3,7 @@ module Events
     decorates :new_discussion, :class => Events::NewDiscussion
   
     def eventable_path
-      h.discussion_path(model.eventable)
+      h.discussion_path(model.discussion)
     end
   end
 end

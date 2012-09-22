@@ -3,7 +3,7 @@ module Events
     decorates :new_comment, :class => Events::NewComment
   
     def eventable_path
-      h.discussion_path(model.eventable.discussion)
+      h.discussion_path(model.discussion)
     end
   end
 end

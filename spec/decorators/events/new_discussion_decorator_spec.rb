@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe Events::NewDiscussionDecorator do
-  let(:discussion) { double("discussion", :id => 123) }
-  let(:event)      { double("event", :eventable => discussion) }
+  let(:discussion) { double("discussion", :to_param => '321') }
+  let(:event)      { double("event", :discussion => discussion) }
   subject do
     Events::NewDiscussionDecorator.new(event)
   end
@@ -14,7 +14,6 @@ describe Events::NewDiscussionDecorator do
   end
   
   it "builds eventable path from discussion" do
-    subject.h.should_receive(:discussion_path).with(discussion).and_return('somepath')
-    subject.eventable_path.should == "somepath"
+    subject.eventable_path.should == "/discussions/321"
   end
 end

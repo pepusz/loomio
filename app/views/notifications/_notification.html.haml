@@ -1,19 +1,11 @@
 - begin
-  - if ["new_discussion", "new_comment"].include?(notification.event_kind)
+  - if ["new_discussion", "new_comment", 'new_motion'].include?(notification.event_kind)
     - event = notification.event.decorate
     - href = event.eventable_path
     - user = event.actor
     - action_text = event.action_text
     - title_text = event.title
     - group_name = event.group_name
-
-  - elsif notification.event_kind == "new_motion"
-    - motion = notification.motion
-    - user = motion.author
-    - action_text = "created a new proposal"
-    - title_text = motion.name
-    - group_name = motion.group_full_name
-    - href = discussion_path(motion.discussion)
 
   - elsif notification.event_kind == "motion_closed"
     - motion = notification.motion
