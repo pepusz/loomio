@@ -19,21 +19,12 @@ class Event < ActiveRecord::Base
     Events::NewComment.publish(*params)
   end
 
-  def self.new_motion!(motion)
-    event = create!(:kind => "new_motion", :eventable => motion)
-    motion.group_users.each do |user|
-      unless user == motion.author
-        event.notifications.create! :user => user
-      end
-    end
-    event
+  def self.new_motion!(*params)
+    Events::NewMotion.publish(*params)
   end
 
-  def self.motion_closed!(motion, closer)
-    event = create!(:kind => "motion_closed", :eventable => motion, :actor => closer)
-    motion.group_users.each do |user|
-      event.notifications.create! :user => user
-    end
+  def self.motion_closed!(*params)
+    Events::MotionClosed.publish(*params)
   end
 
   def self.new_vote!(vote)
