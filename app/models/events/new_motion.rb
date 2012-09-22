@@ -14,7 +14,11 @@ class Events::NewMotion < Event
   def discussion
     motion.discussion
   end
-  
+
+  def linkable_resource
+    discussion
+  end
+    
   def action_text
     "created a new proposal"
   end  

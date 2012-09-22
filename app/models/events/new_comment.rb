@@ -15,6 +15,10 @@ class Events::NewComment < Event
     eventable
   end
   
+  def linkable_resource
+    discussion
+  end
+  
   def action_text
     "commented on the discussion"
   end

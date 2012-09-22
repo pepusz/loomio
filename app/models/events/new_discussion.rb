@@ -11,6 +11,10 @@ class Events::NewDiscussion < Event
     eventable
   end
   
+  def linkable_resource
+    discussion
+  end
+    
   def action_text
     "started a new discussion"
   end  
