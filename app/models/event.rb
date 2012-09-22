@@ -15,14 +15,8 @@ class Event < ActiveRecord::Base
     Events::NewDiscussion.publish(*params)
   end
 
-  def self.new_comment!(comment)
-    event = create!(:kind => "new_comment", :eventable => comment)
-    comment.discussion_participants.each do |user|
-      unless user == comment.user
-        event.notifications.create! :user => user
-      end
-    end
-    event
+  def self.new_comment!(*params)
+    Events::NewComment.publish(*params)
   end
 
   def self.new_motion!(motion)
