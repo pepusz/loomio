@@ -3,10 +3,9 @@
     - event = notification.event.decorate
     - href = event.eventable_path
     - user = event.actor
-    / - user = notification.discussion.author
-    - action_text = "started a new discussion"
-    - title_text = notification.discussion.title
-    - group_name = notification.discussion.group_full_name
+    - action_text = event.action_text
+    - title_text = event.title
+    - group_name = event.group_name
 
   - elsif notification.event_kind == "new_comment"
     - comment = notification.comment

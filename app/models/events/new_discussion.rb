@@ -8,5 +8,17 @@ class Events::NewDiscussion < Event
       end
     end
     event
-  end  
+  end
+  
+  def action_text
+    "started a new discussion"
+  end
+  
+  def title
+    eventable.title
+  end
+  
+  def group_name
+    eventable.group_full_name
+  end
 end
