@@ -8,5 +8,5 @@ class Events::NewDiscussion < Event
       end
     end
     event
-  end
+  end  
 end

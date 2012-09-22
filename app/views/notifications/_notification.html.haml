@@ -1,7 +1,9 @@
 - begin
   - if notification.event_kind == "new_discussion"
-    / - raise notification.event.inspect
-    / - event = notification.event.decorate
+    - begin
+      - event = notification.event.decorate
+    - rescue Exception => e
+      - puts e.message
     / - href = event.eventable_path
 
     - discussion = notification.discussion
