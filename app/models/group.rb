@@ -59,14 +59,6 @@ class Group < ActiveRecord::Base
   # ACCESSOR METHODS
   #
 
-  def motions_in_voting_phase_that_user_has_voted_on(user)
-    motions_in_voting_phase.that_user_has_voted_on(user).uniq
-  end
-
-  def motions_in_voting_phase_that_user_has_not_voted_on(user)
-    motions_in_voting_phase - motions_in_voting_phase_that_user_has_voted_on(user)
-  end
-
   def beta_features
     if parent && (parent.beta_features == true)
       true
@@ -128,10 +120,33 @@ class Group < ActiveRecord::Base
   end
 
   #
+  # ACTIVITY METHODS
+  #
+  #
+
+  def activity_since_last_viewed?(user)
+    membership = membership(user)
+    if membership
+      return false unless discussions
+        .includes(:comments)
+        .where('comments.user_id <> ? AND comments.created_at > ?' , user.id, membership.group_last_viewed_at)
+        .count > 0
+      return false unless discussions
+        .joins('INNER JOIN discussion_read_logs ON discussions.id = discussion_read_logs.discussion_id')
+        .where('discussion_read_logs.user_id = ? AND discussions.last_comment_at > discussion_read_logs.discussion_last_viewed_at',  user.id)
+        .count > 0
+      return true
+    end
+    false
+  end
+
+  #
   # MEMBERSHIP METHODS
   #
 
-
+  def membership(user)
+    memberships.where("group_id = ? AND user_id = ?", id, user.id).first
+  end
 
   def add_request!(user)
     unless requested_users_include?(user) || users.exists?(user)
@@ -187,16 +202,52 @@ class Group < ActiveRecord::Base
   # DISCUSSION LISTS
   #
 
-  def discussions_sorted(user= nil)
-    if user && user.group_membership(self)
-      user.discussions.includes(:group).
-      where("discussions.group_id = ? OR groups.parent_id = ?", id, id).
-      order("last_comment_at DESC")
+  def all_discussions
+    Discussion.includes(:group).where("group_id = ? OR (groups.parent_id = ? AND groups.archived_at IS NULL)", id, id)
+  end
+
+  def discussions_with_current_motion
+    if all_discussions
+      all_discussions.includes(:motions).where('motions.phase = ?', "voting")
     else
-      discussions.order("last_comment_at DESC")
+      []
     end
   end
 
+  def discussions_with_current_motion_not_voted_on(user)
+    if all_discussions
+      (all_discussions.includes(:motions).where('motions.phase = ?', "voting") -  discussions_with_current_motion_voted_on(user))
+    else
+      []
+    end
+  end
+
+  def discussions_with_current_motion_voted_on(user)
+    if all_discussions
+      all_discussions.includes(:motions => :votes).where('motions.phase = ? AND votes.user_id = ?', "voting", user.id).order("last_comment_at DESC")
+    else
+      []
+    end
+  end
+
+  def discussions_sorted(user= nil)
+    if user && user.group_membership(self)
+      user.discussions
+        .where("discussions.id NOT IN (SELECT discussion_id FROM motions WHERE phase = 'voting')")
+        .includes(:group)
+        .where('discussions.group_id = ? OR (groups.parent_id = ? AND groups.archived_at IS NULL)', id, id)
+        .order("last_comment_at DESC")
+    else
+      discussions
+        .where("discussions.id NOT IN (SELECT discussion_id FROM motions WHERE phase = 'voting')")
+        .order("last_comment_at DESC")
+    end
+  end
+
+  #
+  # DISCUSSION LISTS
+  #
+  #
   def create_welcome_loomio
     comment_str = "By engaging on a topic, discussing various perspectives and information, and addressing any concerns that arise, the group can put their heads together to find the best way forward.\n\n" +
       "This 'Welcome' discussion can be used to raise any questions about how to use Loomio, and to test out the features. \n\n" +
@@ -210,7 +261,7 @@ class Group < ActiveRecord::Base
     membership = add_member!(user)
     discussion = user.authored_discussions.create!(:group_id => id, :title => "Welcome and Introduction to Loomio!")
     discussion.add_comment(user, comment_str)
-    motion = user.authored_motions.new(:discussion_id => discussion.id, :name => "We should have a holiday on the moon",
+    motion = user.authored_motions.new(:discussion_id => discussion.id, :name => "Example proposal - We should have a holiday on the moon",
       :description => motion_str, :close_date => Time.now + 7.days)
     motion.save
     membership.destroy
