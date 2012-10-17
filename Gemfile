@@ -41,7 +41,6 @@ group :assets do
   gem 'twitter-bootstrap-rails'
   gem 'bootstrap-sass', '~>2.0.3'
   gem 'coffee-rails', '~> 3.2.2'
-  gem 'coffeebeans'
   gem 'uglifier', '>= 1.0.3'
   gem 'modernizr-rails', '~> 2.0.6'
 end
@@ -58,6 +57,7 @@ group :development, :test do
   gem 'database_cleaner'
   gem 'jasminerice'
   gem 'guard-jasmine'
+  gem 'selenium-webdriver', '2.25.0'
 end
 
 group :development do
